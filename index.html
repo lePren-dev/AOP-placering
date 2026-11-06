@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vinkartan – placera appellationerna</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f7f3ee;--fg:#2b1d22;--card:#fff;--land:#efe6d5;--sea:#bcd6e6;--line:#7b2d43;--ap:#e3c9a8;--ok:#3f8f4f;--bad:#c0392b;--acc:#7b2d43;--chip:#7b2d43;--chipfg:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1519;--fg:#f1e8e3;--card:#2a2025;--land:#3a3030;--sea:#27404f;--line:#d98aa2;--ap:#5a4636;--ok:#5fb872;--bad:#e5624f;--acc:#d98aa2;--chip:#d98aa2;--chipfg:#25161b}}
+:root[data-theme="dark"]{--bg:#1d1519;--fg:#f1e8e3;--card:#2a2025;--land:#3a3030;--sea:#27404f;--line:#d98aa2;--ap:#5a4636;--ok:#5fb872;--bad:#e5624f;--acc:#d98aa2;--chip:#d98aa2;--chipfg:#25161b}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:Georgia,"Times New Roman",serif;padding:16px;min-height:100%}
+main{max-width:660px;margin:0 auto}
+h1{font-size:1.5rem;margin:.2em 0 .3em;color:var(--acc)}
+p{margin:.3em 0 .9em;line-height:1.4}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:12px 16px;background:var(--acc);color:var(--chipfg)}
+button.alt{background:var(--card);color:var(--fg);border:1px solid var(--acc)}
+#wrap{position:relative;width:100%;max-width:640px;aspect-ratio:1;background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+svg{display:block;width:100%;height:100%}
+.ap{fill:var(--ap);stroke:var(--line);stroke-width:.4;fill-opacity:.8}
+.ap.ok{fill:var(--ok);fill-opacity:.55}
+.lbl{font-size:2.6px;fill:var(--fg);text-anchor:middle;font-family:Georgia,serif;pointer-events:none}
+.chip{background:var(--chip);color:var(--chipfg);padding:6px 10px;border-radius:999px;font-size:12px;white-space:nowrap;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 2px 6px rgba(0,0,0,.3);font-family:Georgia,serif}
+#wrap .chip{position:absolute;transform:translate(-50%,-50%);padding:4px 8px;font-size:11px}
+.chip.drag{position:fixed;transform:translate(-50%,-50%);z-index:50;cursor:grabbing}
+.chip.ok{background:var(--ok);color:#fff}.chip.bad{background:var(--bad);color:#fff}
+#tray{display:flex;flex-wrap:wrap;gap:8px;min-height:56px;padding:12px;margin:12px 0;background:var(--card);border:1px dashed var(--line);border-radius:12px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px}
+#res{font-size:1.2rem;font-weight:bold;color:var(--acc)}
+.hide{display:none}
+.land{fill:var(--land);stroke:var(--line);stroke-width:.3}.dec{fill:var(--for);opacity:.7}.geo{font-size:2.4px;font-style:italic;fill:var(--fg);opacity:.6;text-anchor:middle;font-family:Georgia,serif;pointer-events:none}
+:root{--for:#b9c9a5}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--for:#3f5240}}:root[data-theme="dark"]{--for:#3f5240}
+.ctx{fill:var(--ap);fill-opacity:.3;stroke:var(--line);stroke-width:.2;stroke-dasharray:.8 .6}.cd{fill:var(--fg)}.city{font-size:2.2px;fill:var(--fg);font-family:Georgia,serif;pointer-events:none}
+</style>
+</head>
+<body>
+<main>
+<section id="start">
+<h1>🍷 Vinkartan</h1>
+<p>Välj ett franskt vinområde. Sedan ska du dra appellationernas namn till rätt plats på kartan.</p>
+<div class="grid" id="menu"></div>
+</section>
+<section id="game" class="hide">
+<h1 id="title"></h1>
+<p id="hint">Dra namnen från rutan under kartan och släpp dem på rätt appellation. Kartan är förenklad och schematisk. Tryck på Klar när du är färdig.</p>
+<div id="wrap"><svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg></div>
+<div id="tray"></div>
+<div class="bar">
+<button id="done">Klar</button>
+<button id="again" class="alt hide">Välj nytt vinområde</button>
+<span id="res"></span>
+</div>
+</section>
+</main>
+<script>
+const D={
+"Bordeaux":{deco:[["6,62 40,64 44,100 6,100",["Landes",22,84]]],x:["6,10 14,12 9,19 4,16","18,6 30,14 40,26 46,40 52,38 50,30 40,18 28,8","49,46 86,42 90,62 70,80 60,68 53,56"],c:[["Bordeaux",47,53],["Libourne",63,42],["Langon",63,83]],r2:[["M62,42 C68,34 74,26 82,18",.9],["M56,88 C58,80 58,74 60,70",.8]],bg:1,land:"4,0 100,0 100,100 6,100 3,70 6,40 3,18",rv:[["M10,4 C22,14 34,28 46,42",3.4],["M46,42 C48,52 52,60 60,70 S72,84 80,92",1.6],["M46,42 C60,41 74,41 96,34",1.6]],t:[["Gironde",32,12],["Garonne",68,62],["Dordogne",86,31],["Atlanten",3,50]],a:[
+["Pauillac","14,12 21,17 27,24 22,31 15,27 9,19"],["Margaux","27,24 33,30 40,38 38,46 30,44 22,31"],["Pessac-Léognan","30,44 38,46 46,56 52,64 46,72 36,68 28,56"],["Sauternes","46,74 54,66 60,72 64,80 60,88 50,86"],["Pomerol","57,30 66,30 66,40 57,40 55,35"],["Saint-Émilion","66,30 80,29 85,34 81,40 66,40"]]},
+"Loire":{x:["38,46 50,44 52,50 46,54 38,54","68,56 76,54 78,66 70,68","66,72 78,72 78,82 66,82","94,46 100,48 100,64 94,66"],c:[["Nantes",8,66],["Angers",26,57],["Saumur",42,58],["Tours",58,52],["Orléans",78,36]],r2:[["M70,88 C64,78 58,70 50,62",1],["M26,57 L26,38",.9]],bg:1,land:"6,0 100,0 100,100 6,100 4,70 8,50",rv:[["M0,68 L10,66 C18,60 26,58 32,56 C40,60 46,58 54,52 C62,46 68,44 76,38 C82,32 90,36 92,50 L92,100",1.8]],t:[["Loire",84,30],["Atlanten",3,40]],a:[
+["Muscadet","7,60 16,58 20,66 18,76 8,76 6,68"],["Anjou","20,50 34,48 36,56 34,66 22,66 18,58"],["Saumur","36,56 46,54 50,60 46,68 34,66"],["Chinon","50,60 58,58 62,66 58,76 46,72 46,68"],["Vouvray","52,44 62,42 68,46 64,54 56,54 52,50"],["Sancerre","78,48 88,46 90,58 88,68 78,66 76,56"]]},
+"Bourgogne":{deco:[["6,30 30,36 36,60 20,86 6,70",["Morvan",18,58]]],x:["46,28 58,26 54,36 52,46 44,54 38,46 40,36"],c:[["Auxerre",30,22],["Dijon",64,20],["Beaune",58,52],["Chalon",66,68],["Mâcon",60,82],["Lyon",58,96]],r2:[["M26,60 C28,40 32,30 30,22 C28,12 30,6 34,0",1]],land:"6,2 90,2 92,40 86,100 20,100 8,60",rv:[["M74,20 C72,40 68,56 62,70 C58,82 56,92 52,100",1.6]],t:[["Saône",78,50]],a:[
+["Chablis","14,6 38,4 42,16 34,26 16,24 10,14"],["Côte de Nuits","58,26 66,28 64,40 58,48 52,46 54,36"],["Côte de Beaune","52,46 58,48 56,60 46,62 44,54"],["Côte Chalonnaise","46,62 56,60 54,72 42,74 40,66"],["Mâconnais","42,74 54,72 52,84 40,86 38,80"],["Beaujolais","40,86 52,84 50,98 34,98 34,90"]]},
+"Alsace":{x:["52,0 66,0 66,8 52,8","40,94 57,93 55,100 38,100"],c:[["Strasbourg",72,5],["Sélestat",70,34],["Mulhouse",66,94]],r2:[["M70,6 C74,30 72,56 74,92",.9]],land:"30,0 90,0 88,100 22,100 26,50",deco:[["0,0 34,0 24,100 0,100",["Vosges",14,50]]],rv:[["M88,0 C90,30 86,60 90,100",1.8]],t:[["Rhen",80,50]],a:[
+["Barr","52,8 66,8 65,23 50,24 51,16"],["Ribeauvillé","50,24 65,23 64,38 48,39 49,31"],["Riquewihr","48,39 64,38 62,52 46,53 47,45"],["Colmar","46,53 62,52 61,66 44,67 45,60"],["Eguisheim","44,67 61,66 59,79 42,80 43,73"],["Guebwiller","42,80 59,79 57,93 40,94 41,87"]]},
+"Rhône":{x:["32,28 46,26 47,43 36,44 31,36","50,46 60,44 64,50 60,58 50,58 48,52","34,62 44,62 44,76 36,78 32,70"],c:[["Lyon",42,3],["Valence",52,57],["Avignon",44,86]],r2:[["M90,40 C74,44 60,52 50,56",1],["M90,88 C70,86 56,86 46,84",1],["M20,70 C30,72 38,70 44,70",.9]],deco:[["0,0 24,0 20,60 0,100",["Massif Central",10,40]],["86,0 100,0 100,100 90,100 84,50",["Alperna",94,50]]],rv:[["M40,0 C42,20 48,34 48,50 C46,62 42,70 44,84 L48,100",1.8]],t:[["Rhône",56,24]],a:[
+["Côte-Rôtie","30,6 44,6 45,16 32,18"],["Condrieu","30,18 45,16 46,26 32,28"],["Hermitage","50,34 60,34 60,44 50,46"],["Cornas","36,44 47,43 47,54 36,54"],["Châteauneuf-du-Pape","46,62 58,60 62,70 56,78 46,76"],["Gigondas","64,68 76,66 78,78 68,84 62,78"]]},
+"Provence":{deco:[["0,56 16,56 14,70 8,84 0,84",["Camargue",5,72]]],x:["58,40 52,28 62,24 74,26 76,38"],c:[["Avignon",14,26],["Arles",10,56],["Aix",44,44],["Marseille",36,77],["Toulon",63,77],["Nice",94,53]],r2:[["M100,40 C98,48 96,54 96,56",.9]],bg:1,land:"0,0 100,0 100,56 90,58 80,68 68,74 60,78 52,76 42,80 32,78 24,86 10,86 0,84",rv:[["M10,0 C14,20 12,40 8,60 L4,84",1.6],["M100,10 C80,20 60,28 34,34 C26,38 22,44 16,50",1.2]],t:[["Medelhavet",50,95],["Durance",70,22]],a:[
+["Les Baux-de-Provence","18,44 28,40 32,48 26,54 18,52"],["Coteaux d’Aix-en-Provence","28,40 34,32 52,28 58,40 52,52 38,58 32,48"],["Cassis","40,66 48,64 50,72 44,76 38,74"],["Bandol","56,66 66,64 68,72 60,76 54,74"],["Côtes de Provence","56,42 76,38 90,46 92,56 80,64 68,62 58,58"],["Bellet","93,36 99,36 99,46 93,46"]]},
+"Roussillon / Languedoc":{x:["6,60 22,56 26,64 22,72 8,72","22,26 36,22 34,30 38,38 20,38","56,60 62,66 60,76 52,72"],c:[["Montpellier",66,12],["Béziers",56,40],["Narbonne",58,52],["Carcassonne",30,56],["Perpignan",58,80]],r2:[["M20,90 C18,76 20,66 28,58 C40,56 50,56 58,54",1],["M40,0 C44,10 48,18 54,24 C58,28 64,30 66,34",1],["M20,84 C34,84 48,82 58,82",.9]],bg:1,land:"0,0 74,0 78,12 72,24 66,34 62,48 58,56 62,66 60,76 68,86 70,100 0,100",deco:[["0,86 30,80 56,84 70,92 70,100 0,100",["Pyrenéerna",24,95]]],rv:[],t:[["Medelhavet",88,50]],a:[
+["Pic Saint-Loup","56,8 68,8 68,20 58,24 52,16"],["Faugères","36,22 48,20 52,28 48,38 38,38 34,30"],["Minervois","16,38 38,38 46,40 44,50 30,54 16,50"],["Corbières","26,56 44,52 52,52 56,60 52,72 42,76 30,70"],["Côtes du Roussillon","30,78 46,78 58,78 62,84 58,90 42,90 30,86"],["Banyuls","58,92 66,94 68,100 52,100 52,94"]]}
+};
+const $=id=>document.getElementById(id);
+const svg=$("svg"),wrap=$("wrap"),tray=$("tray");
+let cur=null,finished=false;
+const pts=s=>s.split(" ").map(p=>p.split(",").map(Number));
+function inside(x,y,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const[a,b]=P[i],[m,n]=P[j];if((b>y)!=(n>y)&&x<(m-a)*(y-b)/(n-b)+a)c=!c}return c}
+Object.keys(D).forEach(k=>{const b=document.createElement("button");b.textContent=k;b.onclick=()=>start(k);$("menu").appendChild(b)});
+function start(k){
+  cur=D[k];finished=false;
+  $("start").classList.add("hide");$("game").classList.remove("hide");
+  $("title").textContent=k;$("res").textContent="";$("done").classList.remove("hide");$("again").classList.add("hide");
+  $("hint").classList.remove("hide");
+  svg.innerHTML='<rect width="100" height="100" fill="'+(cur.land?(cur.bg?"var(--sea)":"var(--card)"):"var(--land)")+'"/>'
+   +(cur.land?'<polygon class="land" points="'+cur.land+'"/>':"")
+   +(cur.deco||[]).map(d=>'<polygon class="dec" points="'+d[0]+'"/><text class="geo" x="'+d[1][1]+'" y="'+d[1][2]+'">'+d[1][0]+'</text>').join("")
+   +(cur.x||[]).map(p=>'<polygon class="ctx" points="'+p+'"/>').join("")+cur.rv.concat(cur.r2||[]).map(r=>'<path d="'+r[0]+'" fill="none" stroke="var(--sea)" stroke-width="'+r[1]+'" stroke-linecap="round"/>').join("")
+   +cur.t.map(t=>'<text class="geo" x="'+t[1]+'" y="'+t[2]+'">'+t[0]+'</text>').join("")
+   +cur.a.map((a,i)=>'<polygon class="ap" id="p'+i+'" points="'+a[1]+'"/>').join("")
+   +(cur.c||[]).map(c=>'<circle cx="'+c[1]+'" cy="'+c[2]+'" r=".7" class="cd"/><text class="city" x="'+(c[1]+1.2)+'" y="'+(c[2]+.8)+'">'+c[0]+'</text>').join("");
+  wrap.querySelectorAll(".chip").forEach(c=>c.remove());tray.innerHTML="";
+  cur.a.map((a,i)=>i).sort(()=>Math.random()-.5).forEach(i=>{
+    const c=document.createElement("div");c.className="chip";c.textContent=cur.a[i][0];c.dataset.i=i;
+    c.addEventListener("pointerdown",down);tray.appendChild(c)});
+}
+let drag=null;
+function down(e){
+  if(finished)return;e.preventDefault();drag=e.currentTarget;
+  drag.classList.add("drag");document.body.appendChild(drag);mv(e);
+}
+function mv(e){if(!drag)return;drag.style.left=e.clientX+"px";drag.style.top=e.clientY+"px"}
+window.addEventListener("pointermove",mv);
+window.addEventListener("pointerup",e=>{
+  if(!drag)return;const c=drag;drag=null;c.classList.remove("drag");
+  const r=svg.getBoundingClientRect();
+  if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom){
+    c.style.left=(e.clientX-r.left)/r.width*100+"%";c.style.top=(e.clientY-r.top)/r.height*100+"%";wrap.appendChild(c);
+  }else{c.style.left=c.style.top="";tray.appendChild(c)}
+});
+$("done").onclick=()=>{
+  finished=true;let ok=0;const chips=[...wrap.querySelectorAll(".chip")],placed=new Set();
+  chips.forEach(c=>{
+    const i=+c.dataset.i,r=wrap.getBoundingClientRect(),cr=c.getBoundingClientRect();
+    const x=(cr.left+cr.width/2-r.left)/r.width*100,y=(cr.top+cr.height/2-r.top)/r.height*100;
+    const good=inside(x,y,pts(cur.a[i][1]));
+    c.classList.add(good?"ok":"bad");
+    if(good){ok++;$("p"+i).classList.add("ok")}
+  });
+  tray.querySelectorAll(".chip").forEach(c=>c.classList.add("bad"));
+  cur.a.forEach((a,i)=>{const P=pts(a[1]);const cx=P.reduce((s,p)=>s+p[0],0)/P.length,cy=P.reduce((s,p)=>s+p[1],0)/P.length;
+    const t=document.createElementNS("http://www.w3.org/2000/svg","text");t.setAttribute("x",cx);t.setAttribute("y",cy+4.5);t.setAttribute("class","lbl");t.textContent=a[0];svg.appendChild(t)});
+  $("res").textContent="Du placerade "+ok+" av "+cur.a.length+" rätt!";
+  $("done").classList.add("hide");$("again").classList.remove("hide");$("hint").classList.add("hide");
+};
+$("again").onclick=()=>{$("game").classList.add("hide");$("start").classList.remove("hide")};
+</script>
+</body>
+</html>
